@@ -13,13 +13,15 @@ app = Flask(__name__)
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"]
 )
 def catch_all(path):
+    body = request.get_data()
+
     print("========== REQUEST ==========", flush=True)
     print("Method:", request.method, flush=True)
     print("Path:", "/" + path, flush=True)
     print("User-Agent:", request.headers.get("User-Agent"), flush=True)
     print("Content-Type:", request.headers.get("Content-Type"), flush=True)
-    print("Content-Length:", request.headers.get("Content-Length"), flush=True)
-    print("Remote:", request.remote_addr, flush=True)
+    print("Content-Length:", len(body), flush=True)
+    print("Body HEX:", body[:128].hex(), flush=True)
     print("=============================", flush=True)
 
     return jsonify({
