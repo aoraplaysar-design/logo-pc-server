@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+
 @app.route(
     "/",
     defaults={"path": ""},
@@ -21,7 +22,7 @@ def catch_all(path):
     print("User-Agent:", request.headers.get("User-Agent"), flush=True)
     print("Content-Type:", request.headers.get("Content-Type"), flush=True)
     print("Content-Length:", len(body), flush=True)
-    print("Body HEX:", body[:1ز.  28].hex(), flush=True)
+    print("Body HEX:", body[:128].hex(), flush=True)
     print("=============================", flush=True)
 
     return jsonify({
