@@ -1,223 +1,113 @@
 import os
-import time
-import json
 import hashlib
-from datetime import datetime, timezone
-
-from flask import Flask, request, jsonify, Response
+import requests
+from flask import Flask, request, Response, jsonify
 
 app = Flask(__name__)
 
 PORT = int(os.environ.get("PORT", "8080"))
 
-SERVER_NAME = "logo-pc-ob55-http"
-RELEASE = "OB55"
+# Official upstream used by public Free Fire protocol implementations.
+UPSTREAM = "https://loginbp.ggblueshark.com"
 
-MAX_BODY_PREVIEW = 512
+TIMEOUT = 30
 
+HOP_BY_HOP = {
+    "connection",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailers",
+    "transfer-encoding",
+    "upgrade",
+    "content-length",
+    "host",
+}
 
-# ============================================================
-# HELPERS
-# ============================================================
-
-def now():
-    return datetime.now(timezone.utc).isoformat()
-
-
-def sha256(data):
-    return hashlib.sha256(data).hexdigest()
-
-
-def hex_preview(data):
-    return data[:MAX_BODY_PREVIEW].hex()
-
-
-def printable_preview(data):
-    result = []
-
-    for b in data[:MAX_BODY_PREVIEW]:
-        if 32 <= b <= 126:
-            result.append(chr(b))
-        else:
-            result.append(".")
-
-    return "".join(result)
-
-
-def safe_headers():
-    result = {}
+def upstream_headers():
+    headers = {}
 
     for key, value in request.headers.items():
+        if key.lower() in HOP_BY_HOP:
+            continue
 
-        # Don't log authorization tokens.
-        if key.lower() == "authorization":
-            result[key] = "[redacted]"
-        else:
-            result[key] = str(value)[:1000]
+        # Never invent or modify authentication data.
+        headers[key] = value
 
-    return result
+    return headers
 
 
-# ============================================================
-# REQUEST LOGGER
-# ============================================================
+def forward(path):
+    body = request.get_data(cache=False)
 
-def log_request(path):
-
-    started = time.time()
-
-    body = request.get_data(
-        cache=True
-    )
+    url = UPSTREAM + path
 
     print()
-    print("=" * 80)
-    print("HTTP COMPATIBILITY REQUEST")
-    print("=" * 80)
+    print("========== RELAY ==========")
+    print("METHOD :", request.method)
+    print("PATH   :", path)
+    print("UPSTREAM:", url)
+    print("BYTES  :", len(body))
+    print("SHA256 :", hashlib.sha256(body).hexdigest())
 
-    print("Time:", now())
-    print("Method:", request.method)
-    print("Path:", "/" + path)
-
-    print(
-        "Releaseversion:",
-        request.headers.get(
-            "Releaseversion",
-            ""
-        )
-    )
-
-    print(
-        "Unity:",
-        request.headers.get(
-            "X-Unity-Version",
-            ""
-        )
-    )
-
-    print(
-        "Content-Type:",
-        request.headers.get(
-            "Content-Type",
-            ""
-        )
-    )
-
-    print(
-        "Content-Encoding:",
-        request.headers.get(
-            "Content-Encoding",
-            ""
-        )
-    )
-
-    print(
-        "Body length:",
-        len(body),
-        "bytes"
-    )
-
-    print(
-        "SHA256:",
-        sha256(body)
-    )
-
-    print()
-    print("--- BODY HEX PREVIEW ---")
-    print(hex_preview(body))
-
-    print()
-    print("--- PRINTABLE PREVIEW ---")
-    print(printable_preview(body))
-
-    print()
-    print("--- HEADERS ---")
-
-    for key, value in safe_headers().items():
-        print(
-            f"{key}: {value}"
+    try:
+        r = requests.request(
+            method=request.method,
+            url=url,
+            headers=upstream_headers(),
+            data=body,
+            timeout=TIMEOUT,
+            allow_redirects=False,
+            verify=True,
         )
 
-    elapsed = (
-        time.time() - started
-    ) * 1000
+        print("STATUS :", r.status_code)
+        print("REPLY  :", len(r.content), "bytes")
+        print("============================")
 
-    print()
-    print(
-        "Processing:",
-        round(elapsed, 2),
-        "ms"
-    )
+        response_headers = {}
 
-    print("=" * 80)
-    print()
+        for key, value in r.headers.items():
+            if key.lower() in HOP_BY_HOP:
+                continue
 
-    return body
+            response_headers[key] = value
+
+        return Response(
+            r.content,
+            status=r.status_code,
+            headers=response_headers,
+        )
+
+    except requests.RequestException as e:
+        print("UPSTREAM ERROR:", repr(e))
+
+        return Response(
+            b"",
+            status=502,
+            headers={
+                "Content-Type": "application/octet-stream"
+            },
+        )
 
 
-# ============================================================
-# HEALTH
-# ============================================================
+@app.get("/")
+def index():
+    return jsonify({
+        "status": "online",
+        "service": "Free Fire OB55 relay",
+        "upstream": UPSTREAM
+    })
+
 
 @app.get("/health")
 def health():
-
     return jsonify({
-        "status": "online",
-        "server": SERVER_NAME,
-        "release": RELEASE,
-        "time": now()
+        "status": "ok",
+        "service": "ob55-relay"
     })
 
-
-# ============================================================
-# ROOT
-# ============================================================
-
-@app.get("/")
-def root():
-
-    return jsonify({
-        "status": "online",
-        "server": SERVER_NAME,
-        "release": RELEASE,
-        "mode": "http-compatibility"
-    })
-
-
-# ============================================================
-# OPTIONS
-# ============================================================
-
-@app.route(
-    "/<path:path>",
-    methods=["OPTIONS"]
-)
-def options_request(path):
-
-    response = Response(
-        "",
-        status=204
-    )
-
-    response.headers[
-        "Access-Control-Allow-Origin"
-    ] = "*"
-
-    response.headers[
-        "Access-Control-Allow-Methods"
-    ] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    
-    response.headers[
-        "Access-Control-Allow-Headers"
-    ] = "*"
-
-    return response
-
-
-# ============================================================
-# ALL HTTP REQUESTS
-# ============================================================
 
 @app.route(
     "/<path:path>",
@@ -227,207 +117,24 @@ def options_request(path):
         "PUT",
         "PATCH",
         "DELETE",
-        "HEAD"
+        "OPTIONS"
     ]
 )
-def compatibility(path):
+def relay(path):
+    return forward("/" + path)
 
-    body = log_request(path)
-
-    path_lower = path.lower()
-
-    # --------------------------------------------------------
-    # HEALTH
-    # --------------------------------------------------------
-
-    if path_lower == "health":
-
-        return jsonify({
-            "status": "online",
-            "server": SERVER_NAME,
-            "release": RELEASE
-        })
-
-
-    # --------------------------------------------------------
-    # PING
-    # --------------------------------------------------------
-
-    if path_lower == "ping":
-
-        print(
-            "[COMPAT] /Ping received"
-        )
-
-        # Empty successful HTTP response.
-        #
-        # This does NOT fabricate a game protocol message.
-        # It only confirms that the HTTP request reached us.
-
-        response = Response(
-            b"",
-            status=204
-        )
-
-        response.headers[
-            "X-Server"
-        ] = SERVER_NAME
-
-        response.headers[
-            "X-Release"
-        ] = RELEASE
-
-        return response
-
-
-    # --------------------------------------------------------
-    # MAJORLOGIN
-    # --------------------------------------------------------
-
-    if path_lower == "majorlogin":
-
-        print(
-            "[COMPAT] /MajorLogin received"
-        )
-
-        print(
-            "[COMPAT] Payload length:",
-            len(body)
-        )
-
-        print(
-            "[COMPAT] Payload SHA256:",
-            sha256(body)
-        )
-
-        # IMPORTANT:
-        #
-        # We intentionally do not generate a fake
-        # MajorLoginRes or bypass authentication.
-        #
-        # Returning an empty successful HTTP response lets
-        # us observe whether the client continues or reports
-        # a protocol error.
-
-        response = Response(
-            b"",
-            status=204
-        )
-
-        response.headers[
-            "X-Server"
-        ] = SERVER_NAME
-
-        response.headers[
-            "X-Release"
-        ] = RELEASE
-
-        response.headers[
-            "X-Protocol-Mode"
-        ] = "compatibility"
-
-        return response
-
-
-    # --------------------------------------------------------
-    # GENERIC REQUEST
-    # --------------------------------------------------------
-
-    print(
-        "[COMPAT] Unknown endpoint:",
-        "/" + path
-    )
-
-    # Generic empty response.
-    #
-    # This keeps the HTTP layer alive without pretending
-    # to be an actual Free Fire protocol response.
-
-    response = Response(
-        b"",
-        status=204
-    )
-
-    response.headers[
-        "X-Server"
-    ] = SERVER_NAME
-
-    response.headers[
-        "X-Release"
-    ] = RELEASE
-
-    return response
-
-
-# ============================================================
-# ERROR HANDLERS
-# ============================================================
 
 @app.errorhandler(404)
-def error_404(error):
-
-    return Response(
-        b"",
-        status=404
-    )
+def not_found(_):
+    return forward(request.path)
 
 
 @app.errorhandler(405)
-def error_405(error):
+def method_not_allowed(_):
+    return forward(request.path)
 
-    return Response(
-        b"",
-        status=405
-    )
-
-
-@app.errorhandler(500)
-def error_500(error):
-
-    print(
-        "[ERROR]",
-        repr(error),
-        flush=True
-    )
-
-    return Response(
-        b"",
-        status=500
-    )
-
-
-# ============================================================
-# START
-# ============================================================
 
 if __name__ == "__main__":
-
-    print("=" * 80)
-    print("LOGO PC OB55 HTTP COMPATIBILITY SERVER")
-    print("=" * 80)
-
-    print(
-        "Server:",
-        SERVER_NAME
-    )
-
-    print(
-        "Release:",
-        RELEASE
-    )
-
-    print(
-        "Port:",
-        PORT
-    )
-
-    print(
-        "Listening:",
-        "0.0.0.0"
-    )
-
-    print("=" * 80)
-
     app.run(
         host="0.0.0.0",
         port=PORT,
