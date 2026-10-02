@@ -7,23 +7,22 @@ app = Flask(__name__)
 @app.route("/", defaults={"path": ""}, methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
 @app.route("/<path:path>", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
 def catch_all(path):
-    body = request.get_data(as_text=True)
+    body = request.get_data()
+    preview = body[:128].hex()
 
     log = {
         "method": request.method,
         "path": "/" + path,
-        "query": request.args.to_dict(flat=False),
-        "headers": dict(request.headers),
-        "body": body
+        "content_type": request.headers.get("Content-Type"),
+        "content_length": len(body),
+        "body_first_128_bytes_hex": preview
     }
 
     print("========== REQUEST ==========")
     print(json.dumps(log, ensure_ascii=False, indent=2))
     print("=============================")
 
-    return jsonify({
-        "status": "ok"
-    })
+    return jsonify({"status": "ok"})
 
 
 if __name__ == "__main__":
