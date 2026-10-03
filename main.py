@@ -6,7 +6,12 @@ from flask import Flask, request, Response, jsonify
 app = Flask(__name__)
 
 PORT = int(os.environ.get("PORT", "8080"))
-UPSTREAM = "https://loginbp.ggblueshark.com"
+
+# خادم اللعبة الذي سيستقبل الطلبات كما هي
+UPSTREAM = os.environ.get(
+    "UPSTREAM",
+    "https://loginbp.ggblueshark.com"
+)
 
 HOP_BY_HOP = {
     "connection",
@@ -18,92 +23,88 @@ HOP_BY_HOP = {
     "transfer-encoding",
     "upgrade",
     "content-length",
-    "host",
-}
-
-PC_INFO = {
-    "deviceType": "pc",
-    "platform": "windows",
-    "logo": "pc"
+    "host"
 }
 
 
-@app.get("/")
-def home():
-    return jsonify({
-        "status": "online",
-        "service": "OB55 relay",
-        "device": PC_INFO
-    })
-
-
-@app.get("/device")
-def device():
-    return jsonify(PC_INFO)
-
-
-@app.get("/pc")
-def pc():
-    return jsonify({
-        "status": "ok",
-        "pc": True,
-        **PC_INFO
-    })
-
-
-@app.get("/health")
-def health():
-    return jsonify({"status": "ok"})
-
-
-def forward(path):
-    body = request.get_data(cache=False)
-
+def copy_request_headers():
     headers = {}
 
     for name, value in request.headers.items():
-        if name.lower() not in HOP_BY_HOP:
-            headers[name] = value
+        if name.lower() in HOP_BY_HOP:
+            continue
 
-    print("\n========== RELAY ==========")
-    print("PATH:", path)
-    print("BODY:", len(body), "bytes")
-    print("SHA256:", hashlib.sha256(body).hexdigest())
+        headers[name] = value
+
+    return headers
+
+
+def relay(path):
+    body = request.get_data(cache=False)
+
+    print("\n==============================")
+    print("FREE FIRE 1.56.1 RELAY")
+    print("PATH   :", path)
+    print("METHOD :", request.method)
+    print("BYTES  :", len(body))
+    print(
+        "SHA256 :",
+        hashlib.sha256(body).hexdigest()
+    )
 
     try:
-        r = requests.request(
+        upstream = requests.request(
             method=request.method,
             url=UPSTREAM + path,
-            headers=headers,
+            headers=copy_request_headers(),
             data=body,
             timeout=30,
             allow_redirects=False
         )
 
-        print("UPSTREAM:", r.status_code)
-        print("RESPONSE:", len(r.content), "bytes")
-        print("===========================\n")
-
-        response_headers = {}
-
-        for name, value in r.headers.items():
-            if name.lower() not in HOP_BY_HOP:
-                response_headers[name] = value
-
-        return Response(
-            r.content,
-            status=r.status_code,
-            headers=response_headers
-        )
-
-    except requests.RequestException as e:
-        print("ERROR:", repr(e))
+    except requests.RequestException as error:
+        print("UPSTREAM ERROR:", repr(error))
+        print("==============================")
 
         return Response(
             b"",
             status=502,
             content_type="application/octet-stream"
         )
+
+    print("STATUS :", upstream.status_code)
+    print("REPLY  :", len(upstream.content), "bytes")
+    print("==============================")
+
+    response_headers = {}
+
+    for name, value in upstream.headers.items():
+        if name.lower() in HOP_BY_HOP:
+            continue
+
+        response_headers[name] = value
+
+    return Response(
+        upstream.content,
+        status=upstream.status_code,
+        headers=response_headers
+    )
+
+
+@app.get("/")
+def index():
+    return jsonify({
+        "status": "online",
+        "service": "Free Fire 1.56.1 relay",
+        "upstream": UPSTREAM
+    })
+
+
+@app.get("/health")
+def health():
+    return jsonify({
+        "status": "ok"
+    })
 
 
 @app.route(
@@ -117,8 +118,8 @@ def forward(path):
         "OPTIONS"
     ]
 )
-def relay(path):
-    return forward("/" + path)
+def all_routes(path):
+    return relay("/" + path)
 
 
 if __name__ == "__main__":
@@ -126,4 +127,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=PORT,
         threaded=True
-        )
+    )
