@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ammarrebba | منصتك الجزائرية</title>
+    <meta name="description" content="ammarrebba - الدراسة والذكاء الاصطناعي والأدوات المفيدة في مكان واحد">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container nav">
+
+        <a href="#" class="logo">
+            <span class="logo-mark">A</span>
+            <span>ammar<span>rebba</span></span>
+        </a>
+
+        <button class="menu-btn" id="menuBtn">☰</button>
+
+        <nav id="mainNav">
+            <a href="#home">الرئيسية</a>
+            <a href="#study">الدراسة</a>
+            <a href="#ai">الذكاء الاصطناعي</a>
+            <a href="#tools">الأدوات</a>
+        </nav>
+
+    </div>
+</header>
+
+
+<main id="home">
+
+<section class="hero">
+    <div class="container hero-content">
+
+        <div class="hero-text">
+            <div class="badge">🇩🇿 منصتك الجزائرية</div>
+
+            <h1>
+                كل ما تحتاجه
+                <span>في مكان واحد</span>
+            </h1>
+
+            <p>
+                الدراسة، الذكاء الاصطناعي والأدوات المفيدة
+                في منصة واحدة بسيطة وسريعة.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="#study" class="btn primary">ابدأ الآن</a>
+                <a href="#tools" class="btn secondary">استكشف الأدوات</a>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <div class="hero-card-top">
+                <span>ammarrebba</span>
+                <span class="online">● Online</span>
+            </div>
+
+            <div class="hero-stat">
+                <strong>03</strong>
+                <span>أقسام رئيسية</span>
+            </div>
+
+            <div class="mini-cards">
+                <div>📚<small>الدراسة</small></div>
+                <div>🤖<small>AI</small></div>
+                <div>🛠️<small>أدوات</small></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="section" id="study">
+    <div class="container">
+
+        <div class="section-title">
+            <span>📚</span>
+            <div>
+                <h2>الدراسة</h2>
+                <p>كل ما يخص الدراسة في الجزائر</p>
+            </div>
+        </div>
+
+        <div class="cards">
+
+            <div class="card study-card">
+                <div class="icon">🧮</div>
+                <h3>حساب المعدل</h3>
+                <p>احسب معدلك بسهولة باستعمال النقاط والمعاملات.</p>
+                <button onclick="openCalculator()">فتح الحاسبة</button>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">🏫</div>
+                <h3>الابتدائي</h3>
+                <p>موارد ومعلومات لمختلف سنوات التعليم الابتدائي.</p>
+                <button onclick="showMessage('قسم الابتدائي قيد التطوير')">دخول</button>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">📘</div>
+                <h3>المتوسط</h3>
+                <p>موارد السنوات 1AM إلى 4AM.</p>
+                <button onclick="showMessage('قسم المتوسط قيد التطوير')">دخول</button>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">🎓</div>
+                <h3>الثانوي</h3>
+                <p>موارد السنوات 1AS إلى 3AS.</p>
+                <button onclick="showMessage('قسم الثانوي قيد التطوير')">دخول</button>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">📝</div>
+                <h3>BEM</h3>
+                <p>معلومات وموارد شهادة التعليم المتوسط.</p>
+                <button onclick="showMessage('قسم BEM قيد التطوير')">دخول</button>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">🏆</div>
+                <h3>BAC</h3>
+                <p>معلومات وموارد شهادة البكالوريا.</p>
+                <button onclick="showMessage('قسم BAC قيد التطوير')">دخول</button>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">👨‍👩‍👧</div>
+                <h3>فضاء الأولياء</h3>
+                <p>الوصول إلى المنصة الرسمية لوزارة التربية.</p>
+                <a href="https://awlyaa.education.gov.dz/" target="_blank">
+                    فتح المنصة
+                </a>
+            </div>
+
+            <div class="card study-card">
+                <div class="icon">🏛️</div>
+                <h3>وزارة التربية</h3>
+                <p>الوصول إلى الموقع الرسمي لوزارة التربية الوطنية.</p>
+                <a href="https://www.education.gov.dz/" target="_blank">
+                    فتح الموقع
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section class="section dark-section" id="ai">
+    <div class="container">
+
+        <div class="section-title">
+            <span>🤖</span>
+            <div>
+                <h2>الذكاء الاصطناعي</h2>
+                <p>أفضل أدوات AI في مكان واحد</p>
+            </div>
+        </div>
+
+        <div class="cards">
+
+            <div class="card ai-card">
+                <div class="icon">💬</div>
+                <h3>ChatGPT</h3>
+                <p>محادثة، دراسة، كتابة وبرمجة.</p>
+                <a href="https://chatgpt.com/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">✨</div>
+                <h3>Gemini</h3>
+                <p>مساعد الذكاء الاصطناعي من Google.</p>
+                <a href="https://gemini.google.com/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">🧠</div>
+                <h3>Claude</h3>
+                <p>مساعد قوي للكتابة والتحليل.</p>
+                <a href="https://claude.ai/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">🔎</div>
+                <h3>Perplexity</h3>
+                <p>بحث ومعلومات باستخدام الذكاء الاصطناعي.</p>
+                <a href="https://www.perplexity.ai/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">⚡</div>
+                <h3>DeepSeek</h3>
+                <p>مساعد للبحث والبرمجة والمحادثة.</p>
+                <a href="https://chat.deepseek.com/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">🎨</div>
+                <h3>Canva AI</h3>
+                <p>تصميم وإنشاء محتوى بالذكاء الاصطناعي.</p>
+                <a href="https://www.canva.com/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">🎙️</div>
+                <h3>ElevenLabs</h3>
+                <p>إنشاء وتحويل الأصوات بالذكاء الاصطناعي.</p>
+                <a href="https://elevenlabs.io/" target="_blank">فتح</a>
+            </div>
+
+            <div class="card ai-card">
+                <div class="icon">🎵</div>
+                <h3>Suno</h3>
+                <p>إنشاء الموسيقى باستخدام AI.</p>
+                <a href="https://suno.com/" target="_blank">فتح</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section class="section" id="tools">
+    <div class="container">
+
+        <div class="section-title">
+            <span>🛠️</span>
+            <div>
+                <h2>الأدوات</h2>
+                <p>أدوات يومية سريعة ومفيدة</p>
+            </div>
+        </div>
+
+        <div class="tools-grid">
+
+            <button class="tool" onclick="openCalculator()">
+                <span>🧮</span>
+                <strong>حاسبة</strong>
+                <small>حسابات عادية</small>
+            </button>
+
+            <button class="tool" onclick="openPercentage()">
+                <span>📊</span>
+                <strong>النسبة المئوية</strong>
+                <small>احسب النسبة بسهولة</small>
+            </button>
+
+            <button class="tool" onclick="openAge()">
+                <span>🎂</span>
+                <strong>حساب العمر</strong>
+                <small>احسب عمرك</small>
+            </button>
+
+            <button class="tool" onclick="openTextCounter()">
+                <span>📝</span>
+                <strong>عداد النصوص</strong>
+                <small>كلمات وحروف</small>
+            </button>
+
+            <button class="tool" onclick="showMessage('أداة QR قيد التطوير')">
+                <span>🔳</span>
+                <strong>QR Code</strong>
+                <small>إنشاء رمز QR</small>
+            </button>
+
+            <button class="tool" onclick="showMessage('أدوات PDF قادمة')">
+                <span>📄</span>
+                <strong>PDF</strong>
+                <small>أدوات ملفات PDF</small>
+            </button>
+
+            <button class="tool" onclick="showMessage('أدوات الصور قادمة')">
+                <span>🖼️</span>
+                <strong>الصور</strong>
+                <small>أدوات الصور</small>
+            </button>
+
+            <button class="tool" onclick="showMessage('تحويل الوحدات قادم')">
+                <span>📐</span>
+                <strong>تحويل الوحدات</strong>
+                <small>طول، وزن، مساحة...</small>
+            </button>
+
+        </div>
+
+    </div>
+</section>
+
+
+<section class="calculator-section" id="calculator">
+    <div class="container">
+
+        <div class="calculator-box">
+
+            <div class="calc-head">
+                <div>
+                    <span>📚</span>
+                    <h2>حاسبة المعدل الدراسي</h2>
+                </div>
+
+                <button onclick="closeCalculator()">×</button>
+            </div>
+
+            <p class="calc-description">
+                أدخل النقاط والمعاملات لحساب المعدل من 20.
+            </p>
+
+            <div id="subjects"></div>
+
+            <div class="calc-actions">
+                <button class="btn secondary" onclick="addSubject()">
+                    + إضافة مادة
+                </button>
+
+                <button class="btn primary" onclick="calculateAverage()">
+                    احسب المعدل
+                </button>
+            </div>
+
+            <div id="averageResult" class="result hidden"></div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<section class="utility-section" id="utilities">
+    <div class="container">
+
+        <div id="percentageTool" class="utility-box hidden">
+            <button class="close-tool" onclick="closeUtilities()">×</button>
+
+            <h2>📊 حساب النسبة المئوية</h2>
+
+            <input id="percentValue" type="number" placeholder="القيمة">
+            <input id="percentTotal" type="number" placeholder="المجموع">
+
+            <button class="btn primary" onclick="calculatePercentage()">
+                احسب
+            </button>
+
+            <div id="percentResult" class="result"></div>
+        </div>
+
+
+        <div id="ageTool" class="utility-box hidden">
+            <button class="close-tool" onclick="closeUtilities()">×</button>
+
+            <h2>🎂 حساب العمر</h2>
+
+            <input id="birthDate" type="date">
+
+            <button class="btn primary" onclick="calculateAge()">
+                احسب العمر
+            </button>
+
+            <div id="ageResult" class="result"></div>
+        </div>
+
+
+        <div id="textTool" class="utility-box hidden">
+            <button class="close-tool" onclick="closeUtilities()">×</button>
+
+            <h2>📝 عداد النصوص</h2>
+
+            <textarea
+                id="textInput"
+                placeholder="اكتب أو ألصق النص هنا..."
+            ></textarea>
+
+            <div class="text-stats">
+                <div>
+                    <strong id="charCount">0</strong>
+                    <span>حرف</span>
+                </div>
+
+                <div>
+                    <strong id="wordCount">0</strong>
+                    <span>كلمة</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+</main>
+
+
+<footer>
+    <div class="container footer-content">
+
+        <div>
+            <div class="logo footer-logo">
+                <span class="logo-mark">A</span>
+                <span>ammar<span>rebba</span></span>
+            </div>
+
+            <p>
+                منصة عامة تجمع الدراسة والذكاء الاصطناعي والأدوات المفيدة.
+            </p>
+        </div>
+
+        <div class="footer-links">
+            <a href="#home">الرئيسية</a>
+            <a href="#study">الدراسة</a>
+            <a href="#ai">الذكاء الاصطناعي</a>
+            <a href="#tools">الأدوات</a>
+        </div>
+
+    </div>
+
+    <div class="copyright">
+        © 2026 ammarrebba — جميع الحقوق محفوظة
+    </div>
+</footer>
+
+
+<div id="toast" class="toast"></div>
+
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+                  </html>
